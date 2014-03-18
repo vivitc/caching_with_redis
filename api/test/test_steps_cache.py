@@ -1,5 +1,5 @@
 from unittest import TestCase
-from mock import patch
+from mock import patch, Mock
 from mockredis import mock_strict_redis_client
 from src.caching_steps import StepsCache
 
@@ -7,11 +7,16 @@ from src.caching_steps import StepsCache
 class TestStepsCache(TestCase):
 
     @patch('redis.StrictRedis', mock_strict_redis_client)
-    def test_init_cache(self):
+    def test_that_data_from_api_is_stored(self):
         cache = StepsCache()
-        client = cache.get_redis_client()
-        key_name = "key set name"
-        value = "first value"
-        cache.add_value_to_set(client, key_name, value)
-        self.assertEquals(client.sismember(key_name, value), 1)
+        key_name = "script 1"
+        first_value = "step 1 1"
+        second_value = "step 1 2"
+        data = {key_name: [first_value, second_value]}
+        cache.get_steps_information = Mock(return_value=data)
 
+        client = cache.get_redis_client()
+        cache.add_script_data(client)
+
+        self.assertTrue(client.sismember(key_name, first_value))
+        self.assertTrue(client.sismember(key_name, second_value))
