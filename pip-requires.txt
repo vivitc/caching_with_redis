@@ -1,1 +1,3 @@
 redis==2.9.1
+mock==1.0.1
+mockredispy==2.9.0.1
