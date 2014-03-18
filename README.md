@@ -19,6 +19,11 @@ Installing pip require packages
     $ cd project_path
 
     $ pip install -r pip-requires.txt
+    
+Running tests
+-------------
+
+    $ python -m unittest discover -s api -p 'test*.py'
 
 Observations
 ------------
