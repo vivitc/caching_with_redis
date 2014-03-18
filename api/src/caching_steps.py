@@ -15,9 +15,9 @@ class StepsCache:
         For the example we have choose set as main value structure.
         Set allows to store unique keys
         """""
-        data = self.get_steps_information()
-        for key in data.iterkeys():
-            for value in data[key]:
+        scripts_data = self.get_steps_information()
+        for key in scripts_data.iterkeys():
+            for value in scripts_data[key]:
                 client.sadd(key, self.encode(value))
 
     def get_steps_information(self):
@@ -27,3 +27,8 @@ class StepsCache:
         md5 = hashlib.md5()
         md5.update(text)
         return md5.digest()
+
+    def delete_script_steps_data(self, client):
+        scripts_data = self.get_steps_information()
+        for key in scripts_data.iterkeys():
+            client.delete(key)

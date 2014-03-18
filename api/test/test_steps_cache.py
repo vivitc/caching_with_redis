@@ -16,7 +16,6 @@ def encode_mock(encode_values):
     mock = MagicMock(side_effect=side_effect)
     return mock
 
-
 class TestStepsCache(TestCase):
 
     @patch('redis.StrictRedis', mock_strict_redis_client)
@@ -37,10 +36,21 @@ class TestStepsCache(TestCase):
         self.assertTrue(client.sismember(key_name, "encrypted_first_value"))
         self.assertTrue(client.sismember(key_name, "encrypted_second_value"))
 
-
     @patch('hashlib.md5', md5_mock)
     def test_that_encode_text_using_md5(self):
         cache = StepsCache()
         text = "important text"
         encoded_text = cache.encode(text)
         self.assertEquals(encoded_text, 'encrypted_value')
+
+    def test_that_script_step_data_gets_deleted(self):
+        cache = StepsCache()
+        client = cache.get_redis_client()
+        script_name = 'script 1'
+        first_step = 'step 1 1'
+        data = {script_name: [first_step]}
+        client.sadd(script_name, first_step)
+        cache.get_steps_information = Mock(return_value=data)
+        cache.delete_script_steps_data(client)
+
+        self.assertFalse(client.exists(script_name))
